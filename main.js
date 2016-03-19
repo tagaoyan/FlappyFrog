@@ -2,7 +2,7 @@
 
 var TEXT_LOADING = 'Loading...\n\n历史的行程: %s %';
 var TEXT_SCORE = '+ %s s';
-var TEXT_GAME_OVER = '我为长者续命%s秒';
+var TEXT_GAME_OVER = '我为长者续命 %s 秒';
 var TEXT_TRY_AGAIN = '重新续';
 var TEXT_PLAY_BGM = '请州长夫人演唱';
 
@@ -89,7 +89,7 @@ function initLoadingText() {
     _game.world.height / 2,
     '',
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#f00',
       align: 'center'
     }
@@ -342,9 +342,10 @@ function updateFrog() {
   }
 
   if (_gameOver) {
-    _frog.scale.setTo(1, 1);
-    _frog.angle = 0;
+    _frog.angle = 78;
     if (_frog.body.bottom >= _game.world.bounds.bottom) {
+      _frog.scale.setTo(-1, 1);
+      _frog.angle = 0;
       _frog.loadTexture('deadfrog', 0);
     }
   }
@@ -413,7 +414,7 @@ function initfeedback() {
     0,
     _feedback,
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -435,7 +436,7 @@ function initTexts() {
     0,
     TEXT_PLAY_BGM,
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -452,7 +453,7 @@ function initTexts() {
     _game.world.height / 4,
     '',
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -466,7 +467,7 @@ function initTexts() {
     _game.world.height - _game.world.height / 6,
     TEXT_TRY_AGAIN,
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -483,7 +484,7 @@ function initTexts() {
     _game.world.height / 2,
     '',
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
