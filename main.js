@@ -107,6 +107,7 @@ function preload() {
   _game.load.onFileComplete.add(showLoadingText);
 
   _game.load.spritesheet('frog', _baseUrl + 'images/frog.png', 80, 64);
+  _game.load.spritesheet('deadfrog', _baseUrl + 'images/deadfrog.png', 253, 128);
   _game.load.spritesheet('clouds', _baseUrl + 'images/clouds.png', 128, 64);
 
   _game.load.image('pipe', _baseUrl + 'images/pipe.png');
@@ -211,6 +212,7 @@ function initFrog() {
 }
 
 function resetFrog() {
+  _frog.loadTexture('frog', 0);
   _frog.body.allowGravity = false;
   _frog.angle = 0;
   _frog.scale.setTo(1, 1);
@@ -340,8 +342,11 @@ function updateFrog() {
   }
 
   if (_gameOver) {
-    _frog.scale.setTo(1, -1);
-    _frog.angle = -20;
+    _frog.scale.setTo(1, 1);
+    _frog.angle = 0;
+    if (_frog.body.bottom >= _game.world.bounds.bottom) {
+      _frog.loadTexture('deadfrog', 0);
+    }
   }
 }
 
@@ -352,6 +357,10 @@ function updateFrog2() {
 function checkCollision() {
   if (_frog.body.bottom >= _game.world.bounds.bottom) {
     setGameOver();
+  }
+  if (_frog.body.bottom - _frog.body.height <= _game.world.bounds.top) {
+    // die if hit ceiling
+    _frog.body.velocity.y = 10 * _flap;
   }
   _game.physics.overlap(_frog, _pipes, setGameOver);
   // Add score
