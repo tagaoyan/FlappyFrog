@@ -360,7 +360,7 @@ function checkCollision() {
   }
   if (_frog.body.bottom - _frog.body.height <= _game.world.bounds.top) {
     // die if hit ceiling
-    _frog.body.velocity.y = 10 * _flap;
+    setGameOver();
   }
   _game.physics.overlap(_frog, _pipes, setGameOver);
   // Add score
