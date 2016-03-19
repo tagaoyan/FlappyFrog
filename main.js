@@ -220,8 +220,8 @@ function resetFrog() {
 }
 
 function initGround() {
-  _ground = _game.add.tileSprite(0, _game.world.height - 32, _game.world.width, 32, 'ground');
-  _ground.tileScale.setTo(2, 2);
+  _ground = _game.add.tileSprite(0, _game.world.height - 64, _game.world.width, 64, 'ground');
+  _ground.tileScale.setTo(2, 1);
 }
 
 function spawnCloud() {
@@ -552,8 +552,8 @@ function create() {
 
   initBackground();
   initPipes();
-  initFrog();
   initGround();
+  initFrog();
   initTexts();
   initClouds();
   initSounds();
