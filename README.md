@@ -14,4 +14,4 @@ based on https://github.com/marksteve/dtmb
 
 ## Credits
 
-- Sprite of the dead frog comes from <http://madsusie.tumblr.com/image/99608437663> and <http://www.yangzhou301.com/404>.
+- Image of the dead frog comes from <http://madsusie.tumblr.com/image/99608437663> and <http://www.yangzhou301.com/404>.
