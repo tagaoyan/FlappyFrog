@@ -1,5 +1,12 @@
 (function(){
 
+var TEXT_LOADING = 'Loading...\n\n历史的行程: %s %';
+var TEXT_SCORE = '+ %s s';
+var TEXT_GAME_OVER = '我为长者续命 %s 秒';
+var TEXT_TRY_AGAIN = '重新续';
+var TEXT_PLAY_BGM = '请州长夫人演唱';
+
+
 var _gravity = 40,
   _speed = 390,
   _flap = 620,
@@ -73,7 +80,7 @@ var _loadingText;
 var _debug = false;
 
 function showLoadingText(percent) {
-  _loadingText.setText('Loading...\n\n历史的行程: ' + percent + ' %');
+  _loadingText.setText(TEXT_LOADING.replace('%s', percent));
 }
 
 function initLoadingText() {
@@ -82,7 +89,7 @@ function initLoadingText() {
     _game.world.height / 2,
     '',
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#f00',
       align: 'center'
     }
@@ -100,6 +107,7 @@ function preload() {
   _game.load.onFileComplete.add(showLoadingText);
 
   _game.load.spritesheet('frog', _baseUrl + 'images/frog.png', 80, 64);
+  _game.load.spritesheet('deadfrog', _baseUrl + 'images/deadfrog.png', 253, 128);
   _game.load.spritesheet('clouds', _baseUrl + 'images/clouds.png', 128, 64);
 
   _game.load.image('pipe', _baseUrl + 'images/pipe.png');
@@ -204,6 +212,7 @@ function initFrog() {
 }
 
 function resetFrog() {
+  _frog.loadTexture('frog', 0);
   _frog.body.allowGravity = false;
   _frog.angle = 0;
   _frog.scale.setTo(1, 1);
@@ -211,8 +220,8 @@ function resetFrog() {
 }
 
 function initGround() {
-  _ground = _game.add.tileSprite(0, _game.world.height - 32, _game.world.width, 32, 'ground');
-  _ground.tileScale.setTo(2, 2);
+  _ground = _game.add.tileSprite(0, _game.world.height - 64, _game.world.width, 64, 'ground');
+  _ground.tileScale.setTo(2, 1);
 }
 
 function spawnCloud() {
@@ -333,8 +342,12 @@ function updateFrog() {
   }
 
   if (_gameOver) {
-    _frog.scale.setTo(1, -1);
-    _frog.angle = -20;
+    _frog.angle = 78;
+    if (_frog.body.bottom >= _game.world.bounds.bottom) {
+      _frog.scale.setTo(-1, 1);
+      _frog.angle = 0;
+      _frog.loadTexture('deadfrog', 0);
+    }
   }
 }
 
@@ -344,6 +357,10 @@ function updateFrog2() {
 
 function checkCollision() {
   if (_frog.body.bottom >= _game.world.bounds.bottom) {
+    setGameOver();
+  }
+  if (_frog.body.bottom - _frog.body.height <= _game.world.bounds.top) {
+    // die if hit ceiling
     setGameOver();
   }
   _game.physics.overlap(_frog, _pipes, setGameOver);
@@ -359,7 +376,7 @@ function addScore(_, inv) {
 }
 
 function showScore() {
-  _scoreText.setText('+ ' + _score + ' s');
+  _scoreText.setText(TEXT_SCORE.replace('%s', _score));
 }
 
 function setGameOver() {
@@ -370,7 +387,7 @@ function setGameOver() {
 }
 
 function showGameOver() {
-  _gameOverText.setText('我为长者续命' + _score + '秒');
+  _gameOverText.setText(TEXT_GAME_OVER.replace('%s', _score));
   _gameOverText.renderable = true;
   _tryAgainText.renderable = true;
   _tryAgainSprite.events.onInputDown.addOnce(reset);
@@ -397,7 +414,7 @@ function initfeedback() {
     0,
     _feedback,
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -417,9 +434,9 @@ function initTexts() {
   _playBgmText = _game.add.text(
     0,
     0,
-    '请州长夫人演唱',
+    TEXT_PLAY_BGM,
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -436,7 +453,7 @@ function initTexts() {
     _game.world.height / 4,
     '',
     {
-      font: '16px Arial',
+      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -448,9 +465,9 @@ function initTexts() {
   _tryAgainText = _game.add.text(
     _game.world.width / 2,
     _game.world.height - _game.world.height / 6,
-    '重新续',
+    TEXT_TRY_AGAIN,
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -467,7 +484,7 @@ function initTexts() {
     _game.world.height / 2,
     '',
     {
-      font: '24px Arial',
+      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -536,8 +553,8 @@ function create() {
 
   initBackground();
   initPipes();
-  initFrog();
   initGround();
+  initFrog();
   initTexts();
   initClouds();
   initSounds();
