@@ -2,10 +2,11 @@
 
 var TEXT_LOADING = 'Loading...\n\n历史的行程: %s %';
 var TEXT_SCORE = '+ %s s';
-var TEXT_GAME_OVER = '我为长者续命 %s 秒';
+var TEXT_GAME_OVER = '我为长者续命 %s 秒\n自己的生命减少 %s 秒\n效率efficiency: %s%';
 var TEXT_TRY_AGAIN = '重新续';
 var TEXT_PLAY_BGM = '请州长夫人演唱';
-
+var TEXT_TIME_ELAPSED = '- %s s';
+var TEXT_TINY_TIPS = '[微小的提示]\n为了获得坠好的游戏体验，请：\n打开音量\n穿上红色的衣服';
 
 var _gravity = 40,
   _speed = 390,
@@ -56,26 +57,31 @@ var _scoreText,
 var _bgm,
   _playBgm = false;
 
-var _bgmKeyCode = {
-  key1: Phaser.Keyboard.ZERO,
-  key2: Phaser.Keyboard.NUMPAD_0
-};
+var _bgmKeyCode = [
+  Phaser.Keyboard.ZERO,
+  Phaser.Keyboard.NUMPAD_0
+];
 
-var _flapKeyCode = {
-  key1: Phaser.Keyboard.E
-};
+var _flapKeyCode = [
+  Phaser.Keyboard.E
+];
 
-var _feedbackKeyCode = {
-  key1: Phaser.Keyboard.FIVE,
-  key2: Phaser.Keyboard.NUMPAD_5
-};
+var _feedbackKeyCode = [
+  Phaser.Keyboard.FIVE,
+  Phaser.Keyboard.NUMPAD_5
+];
 
 var _feedback,
   _feedbackFunc,
   _feedbackText,
   _feedbackSprite;
 
-var _loadingText;
+var _loadingText,
+  _tinyTipsText;
+
+var _timeElapsedText,
+  _startTime,
+  _timeElapsed;
 
 var _debug = false;
 
@@ -84,6 +90,18 @@ function showLoadingText(percent) {
 }
 
 function initLoadingText() {
+  _tinyTipsText = _game.add.text(
+    _game.world.width / 2,
+    _game.world.height / 4,
+    TEXT_TINY_TIPS,
+    {
+      font: '16px Arial',
+      fill: '#fff',
+      align: 'center'
+    }
+  );
+  _tinyTipsText.anchor.setTo(0.5, 0.5);
+
   _loadingText = _game.add.text(
     _game.world.width / 2,
     _game.world.height / 2,
@@ -358,12 +376,16 @@ function updateFrog2() {
 function checkCollision() {
   if (_frog.body.bottom >= _game.world.bounds.bottom) {
     setGameOver();
+    return;
+  }
+  if (_game.physics.overlap(_frog, _pipes)) {
+    setGameOver();
+    return;
   }
   if (_frog.body.bottom - _frog.body.height <= _game.world.bounds.top) {
     // die if hit ceiling
     setGameOver();
   }
-  _game.physics.overlap(_frog, _pipes, setGameOver);
   // Add score
   _game.physics.overlap(_frog, _pipeInvisibleLines, addScore);
 }
@@ -387,7 +409,9 @@ function setGameOver() {
 }
 
 function showGameOver() {
-  _gameOverText.setText(TEXT_GAME_OVER.replace('%s', _score));
+  var a = Math.floor(_score / _timeElapsed * 100);
+  a = TEXT_GAME_OVER.replace('%s', _score).replace('%s', _timeElapsed).replace('%s', a);
+  _gameOverText.setText(a);
   _gameOverText.renderable = true;
   _tryAgainText.renderable = true;
   _tryAgainSprite.events.onInputDown.addOnce(reset);
@@ -406,7 +430,7 @@ function createTextSprite(t) {
   return s;
 }
 
-function initfeedback() {
+function initFeedback() {
   if (!_feedback)
     return;
   _feedbackText = _game.add.text(
@@ -429,7 +453,7 @@ function initfeedback() {
 }
 
 function initTexts() {
-  initfeedback();
+  initFeedback();
 
   _playBgmText = _game.add.text(
     0,
@@ -461,6 +485,18 @@ function initTexts() {
     }
   );
   _scoreText.anchor.setTo(0.5, 0.5);
+
+  _timeElapsedText = _game.add.text(
+    _game.world.width / 2,
+    _scoreText.y + _scoreText.height,
+    '',
+    {
+      font: '16px Arial',
+      fill: '#f00',
+      align: 'center'
+    }
+  );
+  _timeElapsedText.anchor.setTo(0.5, 0.5);
 
   _tryAgainText = _game.add.text(
     _game.world.width / 2,
@@ -498,6 +534,8 @@ function start() {
   _frog.body.allowGravity = true;
   startPipes();
   _gameStarted = true;
+
+  _startTime = _game.time.now;
 }
 
 function flap() {
@@ -513,7 +551,7 @@ function flap() {
 function checkKeyCode(input, a) {
   if (!input || !a)
     return;
-  return input == a.key1 || input == a.key2;
+  return input == a[0] || input == a[1];
 }
 
 function onKeyDown(e) { }
@@ -563,11 +601,19 @@ function create() {
   reset();
 }
 
+function setTimeElapsed() {
+  _timeElapsed = Math.floor(_game.time.elapsedSecondsSince(_startTime));
+  _timeElapsed += 1;
+
+  _timeElapsedText.setText(TEXT_TIME_ELAPSED.replace('%s', _timeElapsed));
+}
+
 function update() {
   updateClouds();
   if (_gameStarted) {
     updateFrog();
     if (!_gameOver) {
+      setTimeElapsed();
       checkCollision();
     }
     updatePipes();
