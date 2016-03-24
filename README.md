@@ -15,5 +15,5 @@ licensed under [Creative Commons Attribution-NonCommercial 4.0 International Lic
 
 ## Credits
 
-- Image of the dead frog comes from <http://madsusie.tumblr.com/image/99608437663> and <http://www.yangzhou301.com/404>.
+- Image of the dead frog comes from <http://madsusie.tumblr.com/image/99608437663> and <https://www.yangzhou301.com/404>.
 - the weird frog image is **mo**dified from [another frog image](https://amphibian.com/)
