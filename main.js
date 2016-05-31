@@ -6,7 +6,9 @@ var TEXT_GAME_OVER = '我为长者续命 %s 秒\n自己的生命减少 %s 秒\n�
 var TEXT_TRY_AGAIN = '重新续';
 var TEXT_PLAY_BGM = '请州长夫人演唱';
 var TEXT_TIME_ELAPSED = '- %s s';
+var TEXT_TOTAL_TIME_ELAPSED = '累计被续 %s 秒';
 var TEXT_TINY_TIPS = '[微小的提示]\n为了获得坠好的游戏体验，请：\n打开音量\n穿上红色的衣服';
+var TEXT_FONT = '"Segoe UI", "Microsoft YaHei", 宋体, sans-serif'; // 插入宋体
 
 var _gravity = 40,
   _speed = 390,
@@ -63,7 +65,8 @@ var _bgmKeyCode = [
 ];
 
 var _flapKeyCode = [
-  Phaser.Keyboard.E
+  Phaser.Keyboard.E,
+  Phaser.Keyboard.SPACEBAR
 ];
 
 var _feedbackKeyCode = [
@@ -83,6 +86,9 @@ var _timeElapsedText,
   _startTime,
   _timeElapsed;
 
+var _totalTimeElapsedText,
+  _totalTimeElapsed = 0;
+
 var _debug = false;
 
 function showLoadingText(percent) {
@@ -95,7 +101,7 @@ function initLoadingText() {
     _game.world.height / 4,
     TEXT_TINY_TIPS,
     {
-      font: '16px Arial',
+      font: '16px ' + TEXT_FONT,
       fill: '#fff',
       align: 'center'
     }
@@ -107,7 +113,7 @@ function initLoadingText() {
     _game.world.height / 2,
     '',
     {
-      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '24px ' + TEXT_FONT,
       fill: '#f00',
       align: 'center'
     }
@@ -409,6 +415,10 @@ function setGameOver() {
 }
 
 function showGameOver() {
+  _totalTimeElapsed += _timeElapsed;
+  _totalTimeElapsedText.setText(TEXT_TOTAL_TIME_ELAPSED.replace('%s', _totalTimeElapsed));
+  _totalTimeElapsedText.renderable = true;
+
   var a = Math.floor(_score / _timeElapsed * 100);
   a = TEXT_GAME_OVER.replace('%s', _score).replace('%s', _timeElapsed).replace('%s', a);
   _gameOverText.setText(a);
@@ -438,7 +448,7 @@ function initFeedback() {
     0,
     _feedback,
     {
-      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '14px ' + TEXT_FONT,
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -460,7 +470,7 @@ function initTexts() {
     0,
     TEXT_PLAY_BGM,
     {
-      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '14px ' + TEXT_FONT,
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -477,7 +487,7 @@ function initTexts() {
     _game.world.height / 4,
     '',
     {
-      font: '16px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '14px ' + TEXT_FONT,
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -491,19 +501,31 @@ function initTexts() {
     _scoreText.y + _scoreText.height,
     '',
     {
-      font: '16px Arial',
+      font: '14px ' + TEXT_FONT,
       fill: '#f00',
       align: 'center'
     }
   );
   _timeElapsedText.anchor.setTo(0.5, 0.5);
 
+  _totalTimeElapsedText = _game.add.text(
+    _game.world.width / 2,
+    0,
+    '',
+    {
+      font: '14px ' + TEXT_FONT,
+      fill: '#f00',
+      align: 'center'
+    }
+  );
+  _totalTimeElapsedText.anchor.setTo(0.5, 0);
+
   _tryAgainText = _game.add.text(
     _game.world.width / 2,
     _game.world.height - _game.world.height / 6,
     TEXT_TRY_AGAIN,
     {
-      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '22px ' + TEXT_FONT,
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -520,7 +542,7 @@ function initTexts() {
     _game.world.height / 2,
     '',
     {
-      font: '24px "Segoe UI", "Microsoft YaHei", sans-serif',
+      font: '18px ' + TEXT_FONT,
       fill: '#fff',
       stroke: '#430',
       strokeThickness: 4,
@@ -531,6 +553,8 @@ function initTexts() {
 }
 
 function start() {
+  _totalTimeElapsedText.renderable = false;
+
   _frog.body.allowGravity = true;
   startPipes();
   _gameStarted = true;
@@ -573,6 +597,8 @@ function initControls() {
 
 
 function reset() {
+  _timeElapsedText.setText('');
+
   _score = 0;
   _gameOver = false;
   _gameStarted = false;
@@ -602,10 +628,11 @@ function create() {
 }
 
 function setTimeElapsed() {
-  _timeElapsed = Math.floor(_game.time.elapsedSecondsSince(_startTime));
-  _timeElapsed += 1;
-
-  _timeElapsedText.setText(TEXT_TIME_ELAPSED.replace('%s', _timeElapsed));
+  var a = Math.floor(_game.time.elapsedSecondsSince(_startTime)) + 1;
+  if (_timeElapsed != a) {
+    _timeElapsed = a;
+    _timeElapsedText.setText(TEXT_TIME_ELAPSED.replace('%s', _timeElapsed));
+  }
 }
 
 function update() {
